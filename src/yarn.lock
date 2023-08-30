@@ -1319,10 +1319,11 @@ __metadata:
 
 "omnilib-llms@https://github.com/manu-sapiens/omnilib-llms.git#main":
   version: 1.0.0
-  resolution: "omnilib-llms@https://github.com/manu-sapiens/omnilib-llms.git#commit=01c07cfe8775f677c90bd3e325558f6e7f4b5861"
+  resolution: "omnilib-llms@https://github.com/manu-sapiens/omnilib-llms.git#commit=8e6c3d19075ae4934066faf38315df04bb72744f"
   dependencies:
+    gpt-tokenizer: ^2.1.1
     omnilib-utils: "https://github.com/manu-sapiens/omnilib-utils.git#main"
-  checksum: e3ec41dabff41325be3bb3fd5f4dbb152506921b991821bfac9aaad345c3d9b93c79b9cce6bfd09ce2761d82df767e398183e5dbbaaa90dc3ce3c95b74149bb7
+  checksum: a8b590fb20fd61bf3866708d68bd4eebfef7df8dbc2b791523fbd663b25af2c7d286da5b92a869a55528a9e183bb963b58a278b363af62f62698f0aaa8543014
   languageName: node
   linkType: hard
 

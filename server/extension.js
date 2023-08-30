@@ -2787,9 +2787,6 @@ async function parsePayload(payload, ctx) {
   return { result: { "ok": true }, model_id: "currently_loaded_model_in_lm-studio|lm-studio", args };
 }
 
-// node_modules/omnilib-llms/llm.js
-import path from "path";
-
 // ../../../../../node_modules/consola/dist/index.mjs
 init_consola_36c0034f();
 init_core();
@@ -3076,7 +3073,7 @@ var Emittery = class _Emittery {
     if (isMetaEvent(eventName) && !canEmitMetaEvents) {
       throw new TypeError("`eventName` cannot be meta event `listenerAdded` or `listenerRemoved`");
     }
-    this.logIfDebugEnabled("emit", eventName, eventData);
+    this.logIfDebugEnabled("emit", eventName);
     enqueueProducers(this, eventName, eventData);
     const listeners = getListeners(this, eventName) ?? /* @__PURE__ */ new Set();
     const anyListeners = anyMap.get(this);
@@ -3945,6 +3942,9 @@ for (let i = 0; i < 256; ++i) {
   byteToHex.push((i + 256).toString(16).slice(1));
 }
 var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
+
+// node_modules/omnilib-llms/llm.js
+import path from "path";
 
 // ../../../../client/lib/index.js
 var __create2 = Object.create;
@@ -7186,7 +7186,7 @@ var Emittery2 = class _Emittery2 {
     if (isMetaEvent2(eventName) && !canEmitMetaEvents2) {
       throw new TypeError("`eventName` cannot be meta event `listenerAdded` or `listenerRemoved`");
     }
-    this.logIfDebugEnabled("emit", eventName, eventData);
+    this.logIfDebugEnabled("emit", eventName);
     enqueueProducers2(this, eventName, eventData);
     const listeners = getListeners2(this, eventName) ?? /* @__PURE__ */ new Set();
     const anyListeners = anyMap2.get(this);
@@ -8169,8 +8169,8 @@ var LLM_QUERY_CONTROL = null;
 function createLlmQueryComponent(model_provider, links3, payloadParser) {
   const group_id = model_provider;
   const id = `llm_query`;
-  const title = `The Real LLM Query: ${model_provider}`;
-  const category = "Text Manipulation";
+  const title = `LLM Query via ${model_provider}`;
+  const category = "LLM";
   const description = `Query a LLM with ${model_provider}`;
   const summary = `Query the specified LLM via ${model_provider}`;
   const inputs2 = get_llm_query_inputs();
