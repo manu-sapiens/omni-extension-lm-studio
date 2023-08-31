@@ -8821,7 +8821,7 @@ var GptEncoding = class _GptEncoding {
 var api = GptEncoding.getEncodingApi("cl100k_base", () => convertTokenBytePairEncodingFromTuples(cl100k_base_default));
 var { decode, decodeAsyncGenerator, decodeGenerator, encode: encode3, encodeGenerator, isWithinTokenLimit, encodeChat, encodeChatGenerator } = api;
 
-// node_modules/omnilib-docs/tokenizer.js
+// node_modules/omnilib-llms/tokenizer.js
 var Tokenizer = class {
   constructor(params = null) {
   }
@@ -8836,7 +8836,7 @@ var Tokenizer = class {
   }
 };
 
-// node_modules/omnilib-docs/tokenizer_Openai.js
+// node_modules/omnilib-llms/tokenizer_Openai.js
 var Tokenizer_Openai = class extends Tokenizer {
   constructor() {
     super();

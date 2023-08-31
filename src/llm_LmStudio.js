@@ -4,7 +4,7 @@ import { omnilog } from 'mercs_shared';
 import { runBlock } from 'omnilib-utils/blocks.js';
 import { Llm, generateModelId, getModelsDirJson, DEFAULT_UNKNOWN_CONTEXT_SIZE} from 'omnilib-llms/llm.js'
 import { validateDirectoryExists } from 'omnilib-utils/files.js';
-import { Tokenizer_Openai } from 'omnilib-docs/tokenizer_Openai.js' // TBD: use llama tokenizer: https://github.com/belladoreai/llama-tokenizer-js
+import { Tokenizer_Openai } from 'omnilib-llms/tokenizer_Openai.js' // TBD: use llama tokenizer: https://github.com/belladoreai/llama-tokenizer-js
 const LLM_PROVIDER_LM_STUDIO_LOCAL = "lm-studio";
 const LLM_MODEL_TYPE_LM_STUDIO = "lm-studio"
 const BLOCK_LM_STUDIO_SIMPLE_CHATGPT = "lm-studio.simpleGenerateTextViaLmStudio";
