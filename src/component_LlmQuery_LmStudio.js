@@ -4,7 +4,7 @@ import { Llm_LmStudio, MODEL_PROVIDER } from './llm_LmStudio.js'
 
 const llm = new Llm_LmStudio();
 const links = {}; // TBD: provide proper links
-const LlmQueryComponent_LmStudio =  createLlmQueryComponent(MODEL_PROVIDER, links, runProviderPayload );
+export const LlmQueryComponent_LmStudio =  createLlmQueryComponent(MODEL_PROVIDER, links, runProviderPayload );
 
 async function runProviderPayload(payload, ctx) 
 {
@@ -13,4 +13,4 @@ async function runProviderPayload(payload, ctx)
     return response;
 }
 
-export { LlmQueryComponent_LmStudio, extractPayload };
+

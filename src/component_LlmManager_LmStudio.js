@@ -1,6 +1,6 @@
 //@ts-check
 import { createComponent } from 'omnilib-utils/component.js';
-import { MODEL_PROVIDER } from './llm_LmStudio.js'
+import { MODEL_PROVIDER, PROVIDER_NAME } from './llm_LmStudio.js'
 
 const inputs = [
     { name: 'read_me', type: 'string', customSocket: 'text', defaultValue: "1) Run LM Studio\n2) <-> : [Start Server]"},
@@ -15,17 +15,16 @@ const outputs = [
 const controls = null;
 const links = {}
 
-const LlmManagerLmStudioComponent = createComponent(MODEL_PROVIDER, 'llm_manager','LLM Manager: LM Studio', 'Text Manipulation','Manage LLMs from a provider: LM Studio', 'Manage LLMs from a provider: LM Studio', links, inputs, outputs, controls, parsePayload );
+export const LlmManagerComponent_LmStudio = createComponent(MODEL_PROVIDER, 'llm_manager',`LLM Manager: ${PROVIDER_NAME}`, 'Text Generation',`Manage LLMs from provider: ${PROVIDER_NAME}`, `Manage LLMs from provider: ${PROVIDER_NAME}`, links, inputs, outputs, controls, parsePayload );
 
 async function parsePayload(payload, ctx) 
 {
     const args = payload.args || {};
+
     const max_token = payload.max_token || -1;
-    
+    if ("max_token" in args == false) args.max_token = max_token;
+ 
     args.stream = false; // Streaming not supported yet
-    args.max_token = max_token;
-
-    return  { result: { "ok": true }, model_id: 'currently_loaded_model_in_lm-studio|lm-studio', args: args};
+   
+    return  { result: { "ok": true }, model_id: `model_loaded_in_${MODEL_PROVIDER}|${MODEL_PROVIDER}`, args: args};
 }
-
-export { LlmManagerLmStudioComponent }

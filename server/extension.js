@@ -8787,6 +8787,7 @@ var Tokenizer_Openai = class extends Tokenizer {
 // llm_LmStudio.js
 var MODEL_PROVIDER = "lm-studio";
 var MODEL_TYPE = "lm-studio";
+var PROVIDER_NAME = "LM Studio";
 var BLOCK_LM_STUDIO_SIMPLE_CHATGPT = "lm-studio.simpleGenerateTextViaLmStudio";
 var ICON_LM_STUDIO = "\u{1F5A5}";
 var DEFAULT_MODEL_NAME_LM_STUDIO = "loaded_model";
@@ -8887,13 +8888,14 @@ var outputs = [
 ];
 var controls = null;
 var links = {};
-var LlmManagerLmStudioComponent = createComponent(MODEL_PROVIDER, "llm_manager", "LLM Manager: LM Studio", "Text Manipulation", "Manage LLMs from a provider: LM Studio", "Manage LLMs from a provider: LM Studio", links, inputs, outputs, controls, parsePayload);
+var LlmManagerComponent_LmStudio = createComponent(MODEL_PROVIDER, "llm_manager", `LLM Manager: ${PROVIDER_NAME}`, "Text Generation", `Manage LLMs from provider: ${PROVIDER_NAME}`, `Manage LLMs from provider: ${PROVIDER_NAME}`, links, inputs, outputs, controls, parsePayload);
 async function parsePayload(payload, ctx) {
   const args = payload.args || {};
   const max_token = payload.max_token || -1;
+  if ("max_token" in args == false)
+    args.max_token = max_token;
   args.stream = false;
-  args.max_token = max_token;
-  return { result: { "ok": true }, model_id: "currently_loaded_model_in_lm-studio|lm-studio", args };
+  return { result: { "ok": true }, model_id: `model_loaded_in_${MODEL_PROVIDER}|${MODEL_PROVIDER}`, args };
 }
 
 // node_modules/omnilib-llms/llmComponent.js
@@ -8965,7 +8967,7 @@ async function runProviderPayload(payload, ctx) {
 
 // extension.js
 async function CreateComponents() {
-  const components = [LlmManagerLmStudioComponent, LlmQueryComponent_LmStudio];
+  const components = [LlmManagerComponent_LmStudio, LlmQueryComponent_LmStudio];
   return {
     blocks: components,
     patches: []

@@ -7,6 +7,7 @@ import { validateDirectoryExists } from 'omnilib-utils/files.js';
 import { Tokenizer_Openai } from 'omnilib-llms/tokenizer_Openai.js' // TBD: use llama tokenizer: https://github.com/belladoreai/llama-tokenizer-js
 export const MODEL_PROVIDER = 'lm-studio';
 const MODEL_TYPE = "lm-studio"
+export const PROVIDER_NAME = "LM Studio"
 const BLOCK_LM_STUDIO_SIMPLE_CHATGPT = "lm-studio.simpleGenerateTextViaLmStudio";
 const ICON_LM_STUDIO = '🖥';
 const DEFAULT_MODEL_NAME_LM_STUDIO = 'loaded_model'
