@@ -2765,28 +2765,6 @@ function createComponent(group_id, id, title, category, description, summary, li
   return component;
 }
 
-// component_LlmManager_LmStudio.js
-var NS_ONMI = "document_processing";
-var inputs = [
-  { name: "read_me", type: "string", customSocket: "text", defaultValue: "1) Run LM Studio\n2) <-> : [Start Server]" },
-  { name: `max_token`, type: "number", defaultValue: -1, minimum: -1, maximum: 32768, step: 1, description: "The maximum number of tokens to generate. -1: not specified" },
-  { name: "args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" }
-];
-var outputs = [
-  { name: "model_id", type: "string", customSocket: "text", description: "The ID of the selected LLM model" },
-  { name: "args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" }
-];
-var controls = null;
-var links = {};
-var LlmManagerLmStudioComponent = createComponent(NS_ONMI, "llm_manager_lm-studio", "LLM Manager: LM Studio", "Text Manipulation", "Manage LLMs from a provider: LM Studio", "Manage LLMs from a provider: LM Studio", links, inputs, outputs, controls, parsePayload);
-async function parsePayload(payload, ctx) {
-  const args = payload.args || {};
-  const max_token = payload.max_token || -1;
-  args.stream = false;
-  args.max_token = max_token;
-  return { result: { "ok": true }, model_id: "currently_loaded_model_in_lm-studio|lm-studio", args };
-}
-
 // ../../../../../node_modules/consola/dist/index.mjs
 init_consola_36c0034f();
 init_core();
@@ -3942,6 +3920,24 @@ for (let i = 0; i < 256; ++i) {
   byteToHex.push((i + 256).toString(16).slice(1));
 }
 var randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
+
+// node_modules/omnilib-utils/blocks.js
+async function runBlock(ctx, block_name, args, outputs2 = {}) {
+  try {
+    const app = ctx.app;
+    if (!app) {
+      throw new Error(`[runBlock] app not found in ctx`);
+    }
+    const blocks = app.blocks;
+    if (!blocks) {
+      throw new Error(`[runBlock] blocks not found in app`);
+    }
+    const result = await blocks.runBlock(ctx, block_name, args, outputs2);
+    return result;
+  } catch (err) {
+    throw new Error(`Error running block ${block_name}: ${err}`);
+  }
+}
 
 // node_modules/omnilib-llms/llm.js
 import path from "path";
@@ -5109,8 +5105,9 @@ var reduceDescriptors = (obj, reducer) => {
   const descriptors2 = Object.getOwnPropertyDescriptors(obj);
   const reducedDescriptors = {};
   forEach(descriptors2, (descriptor, name) => {
-    if (reducer(descriptor, name, obj) !== false) {
-      reducedDescriptors[name] = descriptor;
+    let ret;
+    if ((ret = reducer(descriptor, name, obj)) !== false) {
+      reducedDescriptors[name] = ret || descriptor;
     }
   });
   Object.defineProperties(obj, reducedDescriptors);
@@ -5639,9 +5636,6 @@ function formDataToJSON(formData) {
   return null;
 }
 var formDataToJSON_default = formDataToJSON;
-var DEFAULT_CONTENT_TYPE = {
-  "Content-Type": void 0
-};
 function stringifySafely(rawValue, parser, encoder2) {
   if (utils_default.isString(rawValue)) {
     try {
@@ -5657,7 +5651,7 @@ function stringifySafely(rawValue, parser, encoder2) {
 }
 var defaults = {
   transitional: transitional_default,
-  adapter: ["xhr", "http"],
+  adapter: browser_default.isNode ? "http" : "xhr",
   transformRequest: [function transformRequest(data, headers) {
     const contentType = headers.getContentType() || "";
     const hasJSONContentType = contentType.indexOf("application/json") > -1;
@@ -5740,15 +5734,13 @@ var defaults = {
   },
   headers: {
     common: {
-      "Accept": "application/json, text/plain, */*"
+      "Accept": "application/json, text/plain, */*",
+      "Content-Type": void 0
     }
   }
 };
-utils_default.forEach(["delete", "get", "head"], function forEachMethodNoData(method) {
+utils_default.forEach(["delete", "get", "head", "post", "put", "patch"], (method) => {
   defaults.headers[method] = {};
-});
-utils_default.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils_default.merge(DEFAULT_CONTENT_TYPE);
 });
 var defaults_default = defaults;
 var ignoreDuplicateOf = utils_default.toObjectSet([
@@ -5999,7 +5991,15 @@ var AxiosHeaders = class {
   }
 };
 AxiosHeaders.accessor(["Content-Type", "Content-Length", "Accept", "Accept-Encoding", "User-Agent", "Authorization"]);
-utils_default.freezeMethods(AxiosHeaders.prototype);
+utils_default.reduceDescriptors(AxiosHeaders.prototype, ({ value }, key) => {
+  let mapped = key[0].toUpperCase() + key.slice(1);
+  return {
+    get: () => value,
+    set(headerValue) {
+      this[mapped] = headerValue;
+    }
+  };
+});
 utils_default.freezeMethods(AxiosHeaders);
 var AxiosHeaders_default = AxiosHeaders;
 function transformData(fns, response) {
@@ -6497,7 +6497,7 @@ function mergeConfig(config1, config2) {
   });
   return config;
 }
-var VERSION = "1.4.0";
+var VERSION = "1.5.0";
 var validators = {};
 ["object", "boolean", "number", "function", "string", "symbol"].forEach((type, i) => {
   validators[type] = function validator(thing) {
@@ -6600,12 +6600,11 @@ var Axios = class {
       }
     }
     config.method = (config.method || this.defaults.method || "get").toLowerCase();
-    let contextHeaders;
-    contextHeaders = headers && utils_default.merge(
+    let contextHeaders = headers && utils_default.merge(
       headers.common,
       headers[config.method]
     );
-    contextHeaders && utils_default.forEach(
+    headers && utils_default.forEach(
       ["delete", "get", "head", "post", "put", "patch", "common"],
       (method) => {
         delete headers[method];
@@ -6670,7 +6669,7 @@ var Axios = class {
     return buildURL(fullPath, config.params, config.paramsSerializer);
   }
 };
-utils_default.forEach(["delete", "get", "head", "options"], function forEachMethodNoData2(method) {
+utils_default.forEach(["delete", "get", "head", "options"], function forEachMethodNoData(method) {
   Axios.prototype[method] = function(url, config) {
     return this.request(mergeConfig(config || {}, {
       method,
@@ -6679,7 +6678,7 @@ utils_default.forEach(["delete", "get", "head", "options"], function forEachMeth
     }));
   };
 });
-utils_default.forEach(["post", "put", "patch"], function forEachMethodWithData2(method) {
+utils_default.forEach(["post", "put", "patch"], function forEachMethodWithData(method) {
   function generateHTTPMethod(isForm) {
     return function httpMethod(url, data, config) {
       return this.request(mergeConfig(config || {}, {
@@ -6888,6 +6887,7 @@ axios.isAxiosError = isAxiosError;
 axios.mergeConfig = mergeConfig;
 axios.AxiosHeaders = AxiosHeaders_default;
 axios.formToJSON = (thing) => formDataToJSON_default(utils_default.isHTMLForm(thing) ? new FormData(thing) : thing);
+axios.getAdapter = adapters_default.getAdapter;
 axios.HttpStatusCode = HttpStatusCode_default;
 axios.default = axios;
 var axios_default = axios;
@@ -6906,6 +6906,7 @@ var {
   AxiosHeaders: AxiosHeaders2,
   HttpStatusCode: HttpStatusCode2,
   formToJSON,
+  getAdapter,
   mergeConfig: mergeConfig2
 } = axios_default;
 var anyMap2 = /* @__PURE__ */ new WeakMap();
@@ -8146,81 +8147,6 @@ var Llm = class {
   }
 };
 
-// node_modules/omnilib-llms/llmComponent.js
-function get_llm_query_inputs(default_llm = "") {
-  const input = [
-    { name: "instruction", type: "string", description: "Instruction(s)", defaultValue: "You are a helpful bot answering the user with their question to the best of your abilities", customSocket: "text" },
-    { name: "prompt", type: "string", customSocket: "text", description: "Prompt(s)" },
-    { name: "temperature", type: "number", defaultValue: 0.7, minimum: 0, maximum: 2, description: "The randomness regulator, higher for more creativity, lower for more structured, predictable text." }
-  ];
-  if (default_llm != "") {
-    input.push({ name: "model_id", type: "string", customSocket: "text", defaultValue: default_llm, description: "The provider of the LLM model to use" });
-  } else {
-    input.push({ name: "model_id", type: "string", customSocket: "text", description: "The provider of the LLM model to use" });
-  }
-  input.push({ name: "args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" });
-  return input;
-}
-var LLM_QUERY_OUTPUT = [
-  { name: "answer_text", type: "string", customSocket: "text", description: "The answer to the query", title: "Answer" },
-  { name: "answer_json", type: "object", customSocket: "object", description: "The answer in json format, with possibly extra arguments returned by the LLM", title: "Json" }
-];
-var LLM_QUERY_CONTROL = null;
-function createLlmQueryComponent(model_provider, links3, payloadParser) {
-  const group_id = model_provider;
-  const id = `llm_query`;
-  const title = `LLM Query via ${model_provider}`;
-  const category = "LLM";
-  const description = `Query a LLM with ${model_provider}`;
-  const summary = `Query the specified LLM via ${model_provider}`;
-  const inputs2 = get_llm_query_inputs();
-  const outputs2 = LLM_QUERY_OUTPUT;
-  const controls2 = LLM_QUERY_CONTROL;
-  const component = createComponent(group_id, id, title, category, description, summary, links3, inputs2, outputs2, controls2, payloadParser);
-  return component;
-}
-function extractPayload(payload, model_provider) {
-  if (!payload)
-    throw new Error("No payload provided.");
-  const instruction = payload.instruction;
-  const prompt3 = payload.prompt;
-  const temperature = payload.temperature || 0;
-  const model_id = payload.model_id;
-  const args = payload.args;
-  if (!prompt3)
-    throw new Error(`ERROR: no prompt provided!`);
-  const splits = getModelNameAndProviderFromId(model_id);
-  const passed_model_name = splits.model_name;
-  const passed_provider = splits.model_provider;
-  if (passed_provider != model_provider)
-    throw new Error(`ERROR: model_provider (${passed_provider}) != ${model_provider}`);
-  return {
-    instruction,
-    prompt: prompt3,
-    temperature,
-    model_name: passed_model_name,
-    args
-  };
-}
-
-// node_modules/omnilib-utils/blocks.js
-async function runBlock(ctx, block_name, args, outputs2 = {}) {
-  try {
-    const app = ctx.app;
-    if (!app) {
-      throw new Error(`[runBlock] app not found in ctx`);
-    }
-    const blocks = app.blocks;
-    if (!blocks) {
-      throw new Error(`[runBlock] blocks not found in app`);
-    }
-    const result = await blocks.runBlock(ctx, block_name, args, outputs2);
-    return result;
-  } catch (err) {
-    throw new Error(`Error running block ${block_name}: ${err}`);
-  }
-}
-
 // node_modules/rfc4648/lib/index.mjs
 var import_index = __toESM(require_lib(), 1);
 var base16 = import_index.default.base16;
@@ -8859,8 +8785,8 @@ var Tokenizer_Openai = class extends Tokenizer {
 };
 
 // llm_LmStudio.js
-var LLM_PROVIDER_LM_STUDIO_LOCAL = "lm-studio";
-var LLM_MODEL_TYPE_LM_STUDIO = "lm-studio";
+var MODEL_PROVIDER = "lm-studio";
+var MODEL_TYPE = "lm-studio";
 var BLOCK_LM_STUDIO_SIMPLE_CHATGPT = "lm-studio.simpleGenerateTextViaLmStudio";
 var ICON_LM_STUDIO = "\u{1F5A5}";
 var DEFAULT_MODEL_NAME_LM_STUDIO = "loaded_model";
@@ -8880,88 +8806,154 @@ var Llm_LmStudio = class extends Llm {
    * @returns {Promise<{ answer_text: string; answer_json: any; }>}
    */
   async query(ctx, prompt3, instruction, model_name, temperature = 0, args = null) {
-    let return_value = {
-      answer_text: "",
-      answer_json: { answer_text: "" }
-    };
-    let block_args = { ...args };
-    block_args.user = ctx.userId;
-    if (prompt3 && prompt3 != "")
-      block_args.prompt = prompt3;
-    if (instruction && instruction != "")
-      block_args.instruction = instruction;
-    block_args.temperature = temperature;
-    if ("seed" in block_args == false)
-      block_args.seed = -1;
-    const response = await this.runLlmBlock(ctx, block_args);
-    if (!response)
-      throw new Error("No response returned from lm_studio");
-    const choices = response?.choices;
-    if (!choices)
-      throw new Error("No choices returned from lm_studio");
-    if (choices.length == 0)
-      throw new Error("Empty choices returned from lm_studio");
-    const message = choices[0].message;
-    if (!message)
-      throw new Error(`No message returned from lm_studio. response = ${JSON.stringify(response)}`);
-    const answer_text = message?.content;
-    if (!answer_text)
-      throw new Error(`No content returned from lm_studio. response = ${JSON.stringify(response)}`);
-    return_value = {
-      answer_text,
-      answer_json: { answer_text }
-    };
-    return return_value;
-  }
-  async runLlmBlock(ctx, args) {
+    args.user = ctx.userId;
+    if ("prompt" in args == false)
+      args.prompt = prompt3;
+    if ("instruction" in args == false)
+      args.instruction = instruction;
+    if ("temperature" in args == false)
+      args.temperature = temperature;
+    if ("seed" in args == false)
+      args.seed = -1;
     const response = await runBlock(ctx, BLOCK_LM_STUDIO_SIMPLE_CHATGPT, args);
+    if (!response)
+      throw new Error(`No response returned from ${MODEL_PROVIDER}`);
     if (response?.error) {
       const error = response.error;
-      const message = error.message;
-      if (message) {
-        const message_json = JSON.parse(message);
+      const message2 = error.message;
+      if (message2) {
+        const message_json = JSON.parse(message2);
         const code = message_json?.error?.code;
         if (code) {
           if (code == "ECONNREFUSED")
             throw new Error(`Error code = ${code}
-[LM Studio] Server is NOT running.
-Please start the server and try again.
-Run [LM Studio]
-Click [<->]
-Load a Model
-Press [Start Server]`);
+[ ${MODEL_PROVIDER}] Server is NOT running.
+Please start the server and try again. (1) Run [LM Studio], (2) Click [<->], (3) Select a Model, (4) Press [Start Server]`);
         }
         throw new Error(`ERROR! code: ${code}, response: ${JSON.stringify(response)}`);
       }
       throw new Error(`ERROR! response: ${JSON.stringify(response)}`);
     }
-    return response;
+    const choices = response?.choices;
+    if (!choices)
+      throw new Error(`No choices returned from ${MODEL_PROVIDER}`);
+    if (choices.length == 0)
+      throw new Error(`Empty choices returned from  ${MODEL_PROVIDER}`);
+    const message = choices[0].message;
+    if (!message)
+      throw new Error(`No message returned from  ${MODEL_PROVIDER}. response = ${JSON.stringify(response)}`);
+    const answer_text = message?.content;
+    if (!answer_text)
+      throw new Error(`No content returned from  ${MODEL_PROVIDER}. response = ${JSON.stringify(response)}`);
+    args.answer_text = answer_text;
+    const return_value = {
+      answer_text,
+      answer_json: args
+    };
+    return return_value;
   }
   getProvider() {
-    return LLM_PROVIDER_LM_STUDIO_LOCAL;
+    return MODEL_PROVIDER;
   }
   getModelType() {
-    return LLM_MODEL_TYPE_LM_STUDIO;
+    return MODEL_TYPE;
   }
   async getModelChoices(choices, llm_model_types, llm_context_sizes) {
     const models_dir_json = await getModelsDirJson();
     if (!models_dir_json)
       return;
-    const provider_model_dir = models_dir_json[LLM_PROVIDER_LM_STUDIO_LOCAL];
+    const provider_model_dir = models_dir_json[MODEL_PROVIDER];
     if (!provider_model_dir)
       return;
     const dir_exists = await validateDirectoryExists(provider_model_dir);
     if (!dir_exists)
       return;
-    choices.push({ value: generateModelId(DEFAULT_MODEL_NAME_LM_STUDIO, LLM_PROVIDER_LM_STUDIO_LOCAL), title: ICON_LM_STUDIO + "model currently loaded in (LM-Studio)", description: "Use the model currently loaded in LM-Studio if that model's server is running." });
-    llm_model_types[DEFAULT_MODEL_NAME_LM_STUDIO] = LLM_MODEL_TYPE_LM_STUDIO;
+    choices.push({ value: generateModelId(DEFAULT_MODEL_NAME_LM_STUDIO, MODEL_PROVIDER), title: ICON_LM_STUDIO + "model currently loaded in (LM-Studio)", description: "Use the model currently loaded in LM-Studio if that model's server is running." });
+    llm_model_types[DEFAULT_MODEL_NAME_LM_STUDIO] = MODEL_TYPE;
     llm_context_sizes[DEFAULT_MODEL_NAME_LM_STUDIO] = DEFAULT_UNKNOWN_CONTEXT_SIZE;
     return;
   }
 };
 
+// component_LlmManager_LmStudio.js
+var inputs = [
+  { name: "read_me", type: "string", customSocket: "text", defaultValue: "1) Run LM Studio\n2) <-> : [Start Server]" },
+  { name: `max_token`, type: "number", defaultValue: -1, minimum: -1, maximum: 32768, step: 1, description: "The maximum number of tokens to generate. -1: not specified" },
+  { name: "args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" }
+];
+var outputs = [
+  { name: "model_id", type: "string", customSocket: "text", description: "The ID of the selected LLM model" },
+  { name: "args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" }
+];
+var controls = null;
+var links = {};
+var LlmManagerLmStudioComponent = createComponent(MODEL_PROVIDER, "llm_manager", "LLM Manager: LM Studio", "Text Manipulation", "Manage LLMs from a provider: LM Studio", "Manage LLMs from a provider: LM Studio", links, inputs, outputs, controls, parsePayload);
+async function parsePayload(payload, ctx) {
+  const args = payload.args || {};
+  const max_token = payload.max_token || -1;
+  args.stream = false;
+  args.max_token = max_token;
+  return { result: { "ok": true }, model_id: "currently_loaded_model_in_lm-studio|lm-studio", args };
+}
+
+// node_modules/omnilib-llms/llmComponent.js
+function get_llm_query_inputs(default_llm = "") {
+  const input = [
+    { name: "instruction", type: "string", description: "Instruction(s)", defaultValue: "You are a helpful bot answering the user with their question to the best of your abilities", customSocket: "text" },
+    { name: "prompt", type: "string", customSocket: "text", description: "Prompt(s)" },
+    { name: "temperature", type: "number", defaultValue: 0.7, minimum: 0, maximum: 2, description: "The randomness regulator, higher for more creativity, lower for more structured, predictable text." }
+  ];
+  if (default_llm != "") {
+    input.push({ name: "model_id", type: "string", customSocket: "text", defaultValue: default_llm, description: "The provider of the LLM model to use" });
+  } else {
+    input.push({ name: "model_id", type: "string", customSocket: "text", description: "The provider of the LLM model to use" });
+  }
+  input.push({ name: "args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" });
+  return input;
+}
+var LLM_QUERY_OUTPUT = [
+  { name: "answer_text", type: "string", customSocket: "text", description: "The answer to the query", title: "Answer" },
+  { name: "answer_json", type: "object", customSocket: "object", description: "The answer in json format, with possibly extra arguments returned by the LLM", title: "Json" }
+];
+var LLM_QUERY_CONTROL = null;
+function createLlmQueryComponent(model_provider, links3, payloadParser) {
+  const group_id = model_provider;
+  const id = `llm_query`;
+  const title = `LLM Query via ${model_provider}`;
+  const category = "LLM";
+  const description = `Query a LLM with ${model_provider}`;
+  const summary = `Query the specified LLM via ${model_provider}`;
+  const inputs2 = get_llm_query_inputs();
+  const outputs2 = LLM_QUERY_OUTPUT;
+  const controls2 = LLM_QUERY_CONTROL;
+  const component = createComponent(group_id, id, title, category, description, summary, links3, inputs2, outputs2, controls2, payloadParser);
+  return component;
+}
+function extractPayload(payload, model_provider) {
+  if (!payload)
+    throw new Error("No payload provided.");
+  const instruction = payload.instruction;
+  const prompt3 = payload.prompt;
+  const temperature = payload.temperature || 0;
+  const model_id = payload.model_id;
+  const args = payload.args;
+  if (!prompt3)
+    throw new Error(`ERROR: no prompt provided!`);
+  const splits = getModelNameAndProviderFromId(model_id);
+  const passed_model_name = splits.model_name;
+  const passed_provider = splits.model_provider;
+  if (passed_provider != model_provider)
+    throw new Error(`ERROR: model_provider (${passed_provider}) != ${model_provider}`);
+  return {
+    instruction,
+    prompt: prompt3,
+    temperature,
+    model_name: passed_model_name,
+    args
+  };
+}
+
 // component_LlmQuery_LmStudio.js
-var MODEL_PROVIDER = "lm-studio";
 var llm = new Llm_LmStudio();
 var links2 = {};
 var LlmQueryComponent_LmStudio = createLlmQueryComponent(MODEL_PROVIDER, links2, runProviderPayload);
@@ -8973,7 +8965,7 @@ async function runProviderPayload(payload, ctx) {
 
 // extension.js
 async function CreateComponents() {
-  const components = [LlmManagerLmStudioComponent, LlmManagerLmStudioComponent];
+  const components = [LlmManagerLmStudioComponent, LlmQueryComponent_LmStudio];
   return {
     blocks: components,
     patches: []

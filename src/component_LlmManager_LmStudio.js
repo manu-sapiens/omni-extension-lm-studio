@@ -1,6 +1,6 @@
 //@ts-check
 import { createComponent } from 'omnilib-utils/component.js';
-const NS_ONMI = 'document_processing';
+import { MODEL_PROVIDER } from './llm_LmStudio.js'
 
 const inputs = [
     { name: 'read_me', type: 'string', customSocket: 'text', defaultValue: "1) Run LM Studio\n2) <-> : [Start Server]"},
@@ -15,7 +15,7 @@ const outputs = [
 const controls = null;
 const links = {}
 
-const LlmManagerLmStudioComponent = createComponent(NS_ONMI, 'llm_manager_lm-studio','LLM Manager: LM Studio', 'Text Manipulation','Manage LLMs from a provider: LM Studio', 'Manage LLMs from a provider: LM Studio', links, inputs, outputs, controls, parsePayload );
+const LlmManagerLmStudioComponent = createComponent(MODEL_PROVIDER, 'llm_manager','LLM Manager: LM Studio', 'Text Manipulation','Manage LLMs from a provider: LM Studio', 'Manage LLMs from a provider: LM Studio', links, inputs, outputs, controls, parsePayload );
 
 async function parsePayload(payload, ctx) 
 {

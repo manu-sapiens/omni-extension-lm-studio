@@ -1,7 +1,6 @@
 //@ts-check
 import { createLlmQueryComponent, extractPayload } from 'omnilib-llms/llmComponent.js';
-import { Llm_LmStudio } from './llm_LmStudio.js'
-const MODEL_PROVIDER = 'lm-studio';
+import { Llm_LmStudio, MODEL_PROVIDER } from './llm_LmStudio.js'
 
 const llm = new Llm_LmStudio();
 const links = {}; // TBD: provide proper links

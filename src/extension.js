@@ -6,7 +6,7 @@ import { LlmQueryComponent_LmStudio } from "./component_LlmQuery_LmStudio";
 
 async function CreateComponents() 
 {
-  const components = [LlmManagerLmStudioComponent, LlmManagerLmStudioComponent ];
+  const components = [LlmManagerLmStudioComponent, LlmQueryComponent_LmStudio ];
 
   return {
     blocks: components,
