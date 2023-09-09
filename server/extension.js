@@ -367,11 +367,21 @@ function createLlmQueryComponent(model_provider, links3, payloadParser) {
 function extractPayload(payload, model_provider) {
   if (!payload)
     throw new Error("No payload provided.");
-  const instruction = payload.instruction;
-  const prompt = payload.prompt;
-  const temperature = payload.temperature || 0;
-  const model_id = payload.model_id;
-  const args = payload.args;
+  let args = payload.args;
+  if (!args || args == void 0)
+    args = {};
+  let instruction = null;
+  let prompt = null;
+  let temperature = null;
+  let model_id = null;
+  if ("instruction" in args == false)
+    instruction = payload.instruction;
+  if ("prompt" in args == false)
+    prompt = payload.prompt;
+  if ("temperature" in args == false)
+    temperature = payload.temperature || 0;
+  if ("model_id" in args == false)
+    model_id = payload.model_id;
   if (!prompt)
     throw new Error(`ERROR: no prompt provided!`);
   const splits = getModelNameAndProviderFromId(model_id);
