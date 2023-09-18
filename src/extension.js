@@ -1,11 +1,12 @@
 //@ts-check
 // extension.js
 import { LlmManagerComponent_LmStudio } from "./component_LlmManager_LmStudio"; 
-import { LlmQueryComponent_LmStudio } from "./component_LlmQuery_LmStudio";
+import { async_getLlmQueryComponent_LmStudio } from "./component_LlmQuery_LmStudio";
 
 
 async function CreateComponents() 
 {
+  const LlmQueryComponent_LmStudio = await async_getLlmQueryComponent_LmStudio();
   const components = [LlmManagerComponent_LmStudio, LlmQueryComponent_LmStudio ];
 
   return {

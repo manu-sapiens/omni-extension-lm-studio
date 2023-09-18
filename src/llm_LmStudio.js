@@ -1,6 +1,4 @@
 //@ts-check
-//llmLmStudio.js
-import { omnilog } from 'mercs_shared';
 import { runBlock } from 'omnilib-utils/blocks.js';
 import { Llm, generateModelId, getModelsDirJson, DEFAULT_UNKNOWN_CONTEXT_SIZE} from 'omnilib-llms/llm.js'
 import { validateDirectoryExists } from 'omnilib-utils/files.js';
