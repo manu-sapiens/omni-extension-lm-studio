@@ -261,7 +261,7 @@ var Llm = class {
    * @param {any} args
    * @returns {Promise<{ answer_text: string; answer_json: any; }>}
    */
-  async query(ctx, prompt, instruction, model_name, temperature = 0, args = null) {
+  async query(ctx, prompt, instruction, model_name, temperature = 0, args = {}) {
     throw new Error("You have to implement this method");
   }
   /**
@@ -342,10 +342,12 @@ var Llm_LmStudio = class extends Llm {
    * @param {string} instruction
    * @param {string} model_name
    * @param {number} [temperature=0]
-   * @param {any} [args=null]
+   * @param {any} [args={}]
    * @returns {Promise<{ answer_text: string; answer_json: any; }>}
    */
-  async query(ctx, prompt, instruction, model_name, temperature = 0, args = null) {
+  async query(ctx, prompt, instruction, model_name, temperature = 0, args = {}) {
+    if (!args)
+      args = {};
     args.user = ctx.userId;
     if ("prompt" in args == false)
       args.prompt = prompt;

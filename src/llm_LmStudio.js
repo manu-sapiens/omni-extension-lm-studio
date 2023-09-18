@@ -27,14 +27,15 @@ export class Llm_LmStudio extends Llm
      * @param {string} instruction
      * @param {string} model_name
      * @param {number} [temperature=0]
-     * @param {any} [args=null]
+     * @param {any} [args={}]
      * @returns {Promise<{ answer_text: string; answer_json: any; }>}
      */
     
-    async query(ctx, prompt, instruction, model_name, temperature=0, args=null)
+    async query(ctx, prompt, instruction, model_name, temperature=0, args={})
     {
         // Note: model_name is not used in lm-studio as the model is selected in LM STUDIO UI
-   
+        if (!args) args = {};
+
         args.user = ctx.userId;
         if ("prompt" in args == false ) args.prompt = prompt;
         if ("instruction" in args == false) args.instruction = instruction;
