@@ -3,7 +3,7 @@ await(async()=>{let{dirname:e}=await import("path"),{fileURLToPath:i}=await impo
 
 
 // node_modules/omnilib-utils/component.js
-import { OAIBaseComponent, WorkerContext, OmniComponentMacroTypes } from "mercs_rete";
+import { OAIBaseComponent, WorkerContext, OmniComponentMacroTypes } from "omni-sockets";
 function generateTitle(value) {
   const title = value.replace(/_/g, " ").replace(/\b\w/g, (match) => match.toUpperCase());
   return title;
@@ -81,7 +81,7 @@ async function runBlock(ctx, block_name, args, outputs2 = {}) {
 import path from "path";
 
 // node_modules/omnilib-utils/files.js
-import { ClientExtension, ClientUtils } from "mercs_client";
+import { ClientExtension, ClientUtils } from "omni-client-services";
 import fs from "fs/promises";
 async function readJsonFromDisk(jsonPath) {
   const jsonContent = JSON.parse(await fs.readFile(jsonPath, "utf8"));
@@ -261,7 +261,7 @@ var Llm = class {
    * @param {any} args
    * @returns {Promise<{ answer_text: string; answer_json: any; }>}
    */
-  async query(ctx, prompt, instruction, model_name, temperature = 0, args = {}) {
+  async query(ctx, prompt, instruction, model_name, temperature = 0, args = null) {
     throw new Error("You have to implement this method");
   }
   /**
@@ -591,12 +591,12 @@ async function getLlmQueryInputs(use_openai_default = false) {
   input.push({ name: "temperature", type: "number", defaultValue: 0.7, minimum: 0, maximum: 2, description: "The randomness regulator, higher for more creativity, lower for more structured, predictable text." });
   if (use_openai_default) {
     const llm_choices = await getLlmChoices();
-    const model_id_input = { name: "model_id", title: "model", type: "string", defaultValue: "gpt-3.5-turbo-16k|openai", choices: llm_choices, customSocket: "text" };
+    const model_id_input = { name: "model_id", type: "string", defaultValue: "gpt-3.5-turbo-16k|openai", choices: llm_choices, customSocket: "text" };
     input.push(model_id_input);
   } else {
     input.push({ name: "model_id", type: "string", customSocket: "text", description: "The provider of the LLM model to use" });
   }
-  input.push({ name: "args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" });
+  input.push({ name: "args", title: "Model Args", type: "object", customSocket: "object", description: "Extra arguments provided to the LLM" });
   return input;
 }
 var LLM_QUERY_OUTPUT = [
