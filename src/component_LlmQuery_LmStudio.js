@@ -1,5 +1,5 @@
 //@ts-check
-import { async_getLlmQueryComponent, extractLlmQueryPayload } from 'omnilib-llms/llmComponent';
+import { async_getLlmQueryComponent, extractLlmQueryPayload } from 'omni-utils'; //'omnilib-llms/llmComponent';
 import { Llm_LmStudio, MODEL_PROVIDER } from './llm_LmStudio.js'
 
 const llm = new Llm_LmStudio();
