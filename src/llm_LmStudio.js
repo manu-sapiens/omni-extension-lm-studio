@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2023 MERCENARIES.AI PTE. LTD.
+ * All rights reserved.
+ */
+
 //@ts-check
 import { runBlock , Llm, generateModelId, getModelsDirJson, DEFAULT_UNKNOWN_CONTEXT_SIZE, validateDirectoryExists , Tokenizer_Openai } from '../../../src/utils/omni-utils.js';
 
