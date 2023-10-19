@@ -3,13 +3,10 @@ await(async()=>{let{dirname:e}=await import("path"),{fileURLToPath:i}=await impo
 
 
 // component_LlmManager_LmStudio.js
-import { createComponent } from "omni-utils";
+import { createComponent } from "../../../src/utils/omni-utils.js";
 
 // llm_LmStudio.js
-import { runBlock } from "omni-utils";
-import { Llm, generateModelId, getModelsDirJson, DEFAULT_UNKNOWN_CONTEXT_SIZE } from "omni-utils";
-import { validateDirectoryExists } from "omni-utils";
-import { Tokenizer_Openai } from "omni-utils";
+import { runBlock, Llm, generateModelId, getModelsDirJson, DEFAULT_UNKNOWN_CONTEXT_SIZE, validateDirectoryExists, Tokenizer_Openai } from "../../../src/utils/omni-utils.js";
 var MODEL_TYPE = "lm-studio";
 var PROVIDER_NAME = "LM Studio";
 var MODEL_PROVIDER = "lm-studio";
@@ -126,7 +123,7 @@ async function parsePayload(payload, ctx) {
 }
 
 // component_LlmQuery_LmStudio.js
-import { async_getLlmQueryComponent, extractLlmQueryPayload } from "omni-utils";
+import { async_getLlmQueryComponent, extractLlmQueryPayload } from "../../../src/utils/omni-utils.js";
 var llm = new Llm_LmStudio();
 var links2 = {};
 async function async_getLlmQueryComponent_LmStudio() {

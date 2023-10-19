@@ -1,5 +1,5 @@
 //@ts-check
-import { createComponent } from 'omni-utils'; //'omnilib-utils/component.js';
+import { createComponent } from '../../../src/utils/omni-utils.js';
 import { MODEL_PROVIDER, PROVIDER_NAME } from './llm_LmStudio.js'
 
 const inputs = [
